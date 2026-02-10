@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css'
 import ChatIcon from './components/ChatIcon';
 import ChatForm from './components/ChatForm';
@@ -11,11 +11,13 @@ const BACKEND_URL = 'http://localhost:8000/chat';
 function App() {
   const [showChatbot, setShowChatbot] = useState(true);
   const [chatHistory, setChatHistory] = useState([]);
+  
+  const chatBodyRef = useRef();
 
   const generateChatResponse = async (history) => {
     const updateHistory = (text) => {
       setChatHistory((prev) => [
-        // [...prev.filter((msg) => 
+        ...prev.filter((msg) => msg.text !== '생각 중...'),
         { role: 'model', text}
         ])
     };
@@ -48,7 +50,14 @@ function App() {
   }
 };
 
-    console.log(chatHistory)
+    // console.log(chatHistory)
+
+    useEffect(() => {
+      chatBodyRef.current.scrollTo({
+        top: chatBodyRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
+    }, [chatHistory])
 
 
   return (
@@ -69,7 +78,7 @@ function App() {
           </button>
         </div>
 
-        <div className='cb-body'>
+        <div className='cb-body' ref={chatBodyRef}>
           <div className="message bot-message">
             <ChatIcon />
             <p className='message-text'>
@@ -77,11 +86,20 @@ function App() {
               저는 챗봇입니다. 무엇을 도와드릴까요?
             </p>
           </div>
-          <ChatMessages />
+          {
+            chatHistory.map((chat, idx) =>(
+              <ChatMessages key={idx} chat={chat}/>
+            ))
+          }
+         
         </div>
 
         <div className='cb-footer'>
-          <ChatForm generateChatResponse={generateChatResponse}/>
+          <ChatForm 
+            generateChatResponse={generateChatResponse}
+            chatHistory={chatHistory}
+            setChatHistory={setChatHistory}
+          />
         </div>
         
       </div>

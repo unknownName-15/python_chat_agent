@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
+import { BsChatSquareText } from "react-icons/bs";
 
-const ChatForm = ({ generateChatResponse }) => {
+const ChatForm = ({ generateChatResponse, chatHistory, setChatHistory }) => {
   const inputRef = useRef();
 
   
@@ -12,8 +13,23 @@ const ChatForm = ({ generateChatResponse }) => {
 
     if (!userMessage) return;
     inputRef.current.value = '';
+
+    setChatHistory((history) => [
+      ...history,
+      {role: 'user', text: userMessage},
+    ])
+
+    setTimeout(() => {setChatHistory((history) => [
+      ...history,
+      {role: 'model', text: <BsChatSquareText />},
+    ])
+      generateChatResponse([
+        ...chatHistory,
+        {role: 'user', text: userMessage},
+      ]);
+    }, 500);
     
-    generateChatResponse([{ role: 'user', text: userMessage }])
+    // generateChatResponse([{ role: 'user', text: userMessage }])
   }
   return (
     <form className='chat-form' onSubmit={handleSubmit}>
